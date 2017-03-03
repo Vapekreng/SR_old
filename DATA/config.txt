@@ -1,0 +1,2 @@
+font_name: UbuntuMono-R.ttf
+font_size: 18
