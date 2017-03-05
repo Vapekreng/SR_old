@@ -20,7 +20,7 @@ for i in range(40):
     codes[keys[i]] = i
 
 # Их имена
-names = ['left', 'right', 'up', 'down']
+changeble_comands = ['left', 'right', 'up', 'down']
 
 #неизменяемые команды и значения по умолчанию
 comand = dict()
@@ -63,7 +63,7 @@ def load_keyset(comand):
                 key = line[separator + 1:]
                 key = key.strip()
                 key = key.lower()
-                if name in names:
+                if name in changeble_comands:
                     code = convert_key_to_code(key)
                     if code not in comand.values():
                         if code != 'wrong code':
@@ -73,22 +73,36 @@ def load_keyset(comand):
         save_keyset(comand)
 
 def save_keyset(comand):
-    f=open('DATA/KeyMapping.txt', 'w')
-    for name in names:
+    f=open('DATA\\KeyMapping.txt', 'w')
+    for name in changeble_comands:
         code = comand[name]
         key = convert_code_to_key(code)
         f.write(name + ' = ' + key + '\n')
     f.close()
 
 def set_comand(comand, name, key):
-    if name in names and key in keys:
-        code = convert_key_to_code(key)
-        comand[name] = code
-        save_keyset(comand)
+    name = name.strip()
+    key = key.strip()
+    if name in changeble_comands:
+        if key in keys:
+            code = convert_key_to_code(key)
+            if code in comand.values():
+                return 'Эта клавиша уже занята'
+            else:
+                comand[name] = code
+                save_keyset(comand)
+                return key
+            return True
+        else:
+            return 'Клавиша не может быть задана'
+    else:
+        return 'Error! ' + name + ' ' + key
+
+
 
 load_keyset(comand)
 settings = dict()
-f = open('DATA/config.txt')
+f = open('DATA\\config.txt')
 for line in f:
     separator = line.find(':')
     # Ищем знак двоеточия
