@@ -19,6 +19,12 @@ def set_used_comands(used_comands, old_code, new_code):
     used_comands[i] = new_code
 
 
+# TODO Собрать меню в классы: класс меню - классы верт и гор меню, добавить атрибут подсказки и выводить его снизу
+# TODO экрана. Поменять атрибут name на normalize_name и сделать вывод на русском. Атрибут name - туда закинуть
+# TODO оригинальные названия команд. Убрать used_comands и поставить проверку по config.comand.values()
+
+
+
 # Имена меню с пробелами до и после названия
 class Upper_menu:
     def __init__(self):
