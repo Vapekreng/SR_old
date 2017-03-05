@@ -3,6 +3,7 @@ from config import settings, comand, screen_width, screen_height, menu_width, me
     menu_bgcolor as bgcolor
 import Game, Settings
 
+#Выводит на экран главное меню игры и передает управление дальше по пунктам
 # TODO: Кривое отображение меню после выхода из настроек (поправил, но лучше порефакторить)
 used_comands = [comand['Esc'], comand['Enter'], comand['Close'], comand['Arrow Up'], comand['Arrow Down'],
                 comand['down'], comand['up']]
@@ -60,6 +61,7 @@ def run_main_menu():
     while True:
         while key_pressed not in used_comands:
             key_pressed = terminal.read()
+            terminal.clear()
         if key_pressed == comand['Enter']:
             if main_menu.state == 0:
                 Game.run_game()
