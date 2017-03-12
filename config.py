@@ -21,6 +21,7 @@ for i in range(40):
 
 # Их имена
 changeble_comands = ['left', 'right', 'up', 'down']
+general_settings = ['font_size']
 
 # Неизменяемые команды и значения по умолчанию
 comand = dict()
@@ -117,6 +118,7 @@ def load_settings(settings):
                 settings[name] = line[1]
         f.close()
     save_settings(settings)
+    return settings
 
 
 def save_settings(settings):
@@ -127,6 +129,12 @@ def save_settings(settings):
     f.close()
 
 
+def set_font_size(size):
+    if int(size )> 0:
+        settings['font_size'] = size
+        save_settings(settings)
+
+
 load_keyset(comand)
-load_settings(settings)
+settings.update(load_settings(settings))
 
