@@ -22,7 +22,7 @@ for i in range(40):
 # Их имена
 changeble_comands = ['left', 'right', 'up', 'down']
 
-#неизменяемые команды и значения по умолчанию
+# Неизменяемые команды и значения по умолчанию
 comand = dict()
 comand['Esc'] = 41
 comand['Enter'] = 40
@@ -37,6 +37,10 @@ comand['left'] = 4
 comand['right'] = 7
 comand['up'] = 26
 comand['down'] = 22
+
+
+# Шрифт и размер шрифта по умолчанию
+settings = dict(zip(['font_name', 'font_size'], ['UbuntuMono-R.ttf', '18']))
 
 def convert_key_to_code(key):
     if key in keys:
@@ -55,24 +59,26 @@ def load_keyset(comand):
     if os.path.isfile('DATA\\KeyMapping.txt'):
         f = open('DATA\\KeyMapping.txt')
         for line in f:
+            #Delete spases and end of line
             line = line.replace(' ', '')
+            line = line.replace('\n', '')
             separator = line.find('=')
             if separator != -1:
                 string = line.split('=')
                 name = string[0].lower()
-                # Убираем символ конца строки - берем только [0]
-                key = string[1].lower()[0]
+                key = string[1].lower()
                 if name in changeble_comands:
                     code = convert_key_to_code(key)
                     if code not in comand.values():
                         if code != 'wrong code':
                             comand[name] = code
         f.close()
-    else:
-        save_keyset(comand)
+    save_keyset(comand)
+
 
 def save_keyset(comand):
     f=open('DATA\\KeyMapping.txt', 'w')
+    f.write('In order to get defaults just delete this file\n')
     for name in changeble_comands:
         code = comand[name]
         key = convert_code_to_key(code)
@@ -98,16 +104,29 @@ def set_comand(comand, name, key):
         return 'Error! ' + name + ' ' + key
 
 
+def load_settings(settings):
+    if os.path.isfile('DATA\\config.txt'):
+        f = open('DATA\\config.txt')
+        settings = {}
+        for line in f:
+            if line.find('=') != -1:
+                line = line.replace(' ', '')
+                line = line.replace('\n', '')
+                line = line.split('=')
+                name = line[0]
+                settings[name] = line[1]
+        f.close()
+    save_settings(settings)
+
+
+def save_settings(settings):
+    f = open('DATA\\config.txt', 'w')
+    f.write('In order to get defaults just delete this file\n')
+    for name in settings.keys():
+        f.write(name + '=' + settings[name] + '\n' )
+    f.close()
+
 
 load_keyset(comand)
-settings = dict()
-f = open('DATA\\config.txt')
-for line in f:
-    separator = line.find(':')
-    # Ищем знак двоеточия
-    name = line[0:separator]
-    # До двоеточия - имя переменной
-    # В конце строки символ окончания строки - откидываем его. В конфиге ОБЯЗАТЕЛЬНО пустая строка в конце
-    settings[name] = line[separator + 2:-1]
-    # После двоеточия - значение, закрыть файл настроек
-f.close()
+load_settings(settings)
+

@@ -13,27 +13,26 @@ bottom_border = config.screen_height - 3
 bgcolor = config.menu_bgcolor
 lighted_bgcolor = config.menu_lighted_bgcolor
 column_width = config.screen_width//2
+#TODO Add spaces in print_text(), not in upper_menu_text
+upper_menu_text = [' Управление ', ' Основные ', ' Автоподбор ', ' Меню 4 ', ' Меню 5', ' Меню 6 ']
+keyset_left_text = ['Налево', 'Направо', 'Вверх', 'Вниз']
+
+
 
 
 #TODO подсказки и текст меню вынести в локализацию
 
-upper_menu_text = [' Основные ', ' Управление ', ' Автоподбор ', ' Меню 4 ', ' Меню 5', ' Меню 6 ']
 
-#Получаем данные для меню настройки управления
-keyset_left_text = ['Налево', 'Направо', 'Вверх', 'Вниз']
-keyset_left_comands = []
-
-
-def get_keyset_right_text():
+def get_keyset_text():
     keyset_right_text = []
+    keyset_left_comands = []
     for i in range(len(config.changeble_comands)):
         name = config.changeble_comands[i]
         code = config.comand[name]
         key = config.convert_code_to_key(code)
         keyset_right_text.append(key)
         keyset_left_comands.append(name)
-    return keyset_right_text
-keyset_right_text = get_keyset_right_text()
+    return keyset_left_comands, keyset_right_text
 
 
 def set_used_comands(used_comands, old_code, new_code):
@@ -152,7 +151,8 @@ class Vertical_menu:
         terminal.refresh()
 
 
-    def print_hint(self, text):
+    def print_hint(self, hint):
+        text = hint + ' ' * (column_width - len(hint))
         x = column_width +1
         y = upper_border +1 + self.state
         terminal.printf(x, y, text)
@@ -164,9 +164,7 @@ class Keyset_menu(Vertical_menu):
 
 
     def make(self):
-        hint = 'Нажмите клавишу или Esc для отмены'
-        hint = 'Нажмите клавишу или Esc для отмены' + ' ' * (column_width - len(hint))
-        self.print_hint(hint)
+        self.print_hint('Нажмите клавишу или Esc для отмены')
         name = self.left_comands[self.state]
         old_code = config.comand[name.strip()]
         new_code = terminal.read()
@@ -180,6 +178,14 @@ class Keyset_menu(Vertical_menu):
         terminal.refresh()
 
 
+class Video_menu(Vertical_menu):
+
+
+    def make(self):
+        pass
+
+
+
 def run_menu():
     terminal.clear()
     # Separate screen for menu
@@ -189,8 +195,9 @@ def run_menu():
     #TODO перенести текст в файл локализации
     upper_menu = Horizontal_menu(upper_menu_text)
     upper_menu.view()
-    # Initialise vert menu
+    # Initialise keyset menu
     #TODO перенести текст в файл локализации
+    keyset_left_comands, keyset_right_text = get_keyset_text()
     keyset_menu = Keyset_menu(keyset_left_text, keyset_right_text, keyset_left_comands)
     keyset_menu.view()
     current_menu = keyset_menu
