@@ -95,12 +95,12 @@ class Horizontal_menu():
 
 
     def view(self):
-        self.state = 0
-        self.print_string(lighted_bgcolor)
-        for i in range(1, self.menu_len):
+        n= self.state
+        for i in range(self.menu_len):
             self.state = i
             self.print_string()
-        self.state = 0
+        self.state = n
+        self.print_string(lighted_bgcolor)
         self.print_hint()
         terminal.refresh()
 
@@ -143,15 +143,16 @@ class Vertical_menu:
 
 
     def view(self):
+        n= self.state
         for y in range(upper_border+1, bottom_border):
             terminal.printf(0, y, ' '*config.screen_width)
-        self.print_string(lighted_bgcolor)
-        self.print_string(column = 'right')
-        for i in range(1, self.menu_len):
+        for i in range(self.menu_len):
             self.state = i
             self.print_string()
             self.print_string(column = 'right')
-        self.state = 0
+        self.state = n
+        self.print_string(lighted_bgcolor)
+        self.print_string(column = 'right')
         terminal.refresh()
 
 
