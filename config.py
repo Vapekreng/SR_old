@@ -55,14 +55,13 @@ def load_keyset(comand):
     if os.path.isfile('DATA\\KeyMapping.txt'):
         f = open('DATA\\KeyMapping.txt')
         for line in f:
+            line = line.replace(' ', '')
             separator = line.find('=')
             if separator != -1:
-                name = line[0:separator]
-                name = name.strip()
-                name = name.lower()
-                key = line[separator + 1:]
-                key = key.strip()
-                key = key.lower()
+                string = line.split('=')
+                name = string[0].lower()
+                # Убираем символ конца строки - берем только [0]
+                key = string[1].lower()[0]
                 if name in changeble_comands:
                     code = convert_key_to_code(key)
                     if code not in comand.values():

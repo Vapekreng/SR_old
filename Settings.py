@@ -22,6 +22,8 @@ upper_menu_text = [' Основные ', ' Управление ', ' Автоп�
 #Получаем данные для меню настройки управления
 keyset_left_text = ['Налево', 'Направо', 'Вверх', 'Вниз']
 keyset_left_comands = []
+
+
 def get_keyset_right_text():
     keyset_right_text = []
     for i in range(len(config.changeble_comands)):
@@ -173,6 +175,7 @@ class Keyset_menu(Vertical_menu):
         if text == key:
             set_used_comands(used_comands, old_code, new_code)
         text = text + ' ' * (column_width - len(text))
+        self.right_text[self.state] = text
         self.print_hint(text)
         terminal.refresh()
 
