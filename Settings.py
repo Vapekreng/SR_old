@@ -15,7 +15,7 @@ lighted_bgcolor = config.menu_lighted_bgcolor
 column_width = config.screen_width//2
 #TODO Add spaces in print_text(), not in upper_menu_text
 #TODO add auto_pick up menu
-# TODO перенести текст в файл локализации
+#TODO перенести текст в файл локализации
 upper_menu_text = ['Управление', 'Основные']
 keyset_left_text = ['Налево', 'Направо', 'Вверх', 'Вниз']
 general_left_text = ['Размер шрифта']
@@ -172,10 +172,10 @@ class Vertical_menu:
 
 
     def print_hint(self, hint):
-        text = hint + ' ' * (column_width - len(hint))
+        hint = hint + ' ' * (column_width - len(hint))
         x = column_width +1
         y = upper_border +1 + self.state
-        terminal.printf(x, y, text)
+        terminal.printf(x, y, hint)
         terminal.refresh()
 
 
@@ -192,8 +192,10 @@ class Keyset_menu(Vertical_menu):
         text = config.set_comand(config.comand, name, key)
         if text == key:
             set_used_comands(used_comands, old_code, new_code)
-        text = text + ' ' * (column_width - len(text))
-        self.right_text[self.state] = text
+            text = text + ' ' * (column_width - len(text))
+            self.right_text[self.state] = text
+        else:
+            text = text + ' ' * (column_width - len(text))
         self.print_hint(text)
         terminal.refresh()
 
