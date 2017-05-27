@@ -1,6 +1,10 @@
+#Меню настроек игры
+
 from bearlibterminal import terminal
 import config
-#Меню настроек игры
+
+# TODO: переделать меню - меню состоит из строк, каждая строка имеет имя и вызываемую функцию, а не все в кучу и ифами
+# TODO: каждая строка это класс, а функция переопределяется
 
 
 used_comands = [config.comand['Arrow Right'], config.comand['Arrow Left'], config.comand['Arrow Down'],
@@ -18,12 +22,13 @@ column_width = config.screen_width//2
 #TODO перенести текст в файл локализации
 upper_menu_text = ['Управление', 'Основные']
 keyset_left_text = ['Налево', 'Направо', 'Вверх', 'Вниз']
-general_left_text = ['Размер шрифта']
+general_left_text = ['Размер шрифта', 'Язык']
 
 
 
 
-#TODO подсказки и текст меню вынести в локализацию
+# TODO подсказки и текст меню вынести в локализацию
+# TODO BackSpace processing while changing keys
 
 
 def get_keyset_text():

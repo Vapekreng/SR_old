@@ -1,0 +1,15 @@
+#### Русская локализация
+#### Start Screen
+Start game=Начать игру
+Settings=Настройки
+Exit=Выход
+#### Main Menu
+Key settings=Управление
+General settings=Основные настройки
+    #### KeySettings
+    Left=Налево
+    Right=Направо
+    Up=Вверх
+    Down=Вниз
+    #### GeneralSettings
+    Font size=Размер шрифта

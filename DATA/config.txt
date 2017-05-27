@@ -1,2 +1,4 @@
-font_name: UbuntuMono-R.ttf
-font_size: 18
+In order to get defaults just delete this file
+font_name = UbuntuMono-R.ttf
+font_size = 24
+language = en

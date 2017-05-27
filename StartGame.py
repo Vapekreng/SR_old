@@ -1,19 +1,24 @@
 from bearlibterminal import terminal
-import config, Game, Settings
+import config, Game, Settings, localization
 
-
+# TODO: переделать меню - меню состоит из строк, каждая строка имеет имя и вызываемую функцию, а не все в кучу и ифами
+# TODO: каждая строка это класс, а функция переопределяется
 bgcolor = config.menu_bgcolor
 lighted_bgcolor = config.menu_lighted_bgcolor
+language = config.settings['language']
 
 
 #Выводит на экран главное меню игры и передает управление дальше по пунктам
 class Menu:
     def __init__(self):
-        self.text = ['Начать игру', 'Настройки', 'Выход']
+        self.text = ['Start game', 'Settings', 'Exit']
+        if language != 'en':
+            self.text = localization.translate_list(self.text)
         self.menu_len=len(self.text)
         self.menu_h = config.screen_height // 2 +3
         self.state=0
         self.spases = ' '*((config.screen_width-config.menu_width)//2)
+
 
     def normalize_text(self):
         for i in range(len(self.text)):
@@ -51,6 +56,7 @@ class Menu:
         self.print_string(bgcolor)
         self.state = (self.state + 1) % self.menu_len
         self.print_string(lighted_bgcolor)
+
 
 def run_main_menu():
     main_menu=Menu()
