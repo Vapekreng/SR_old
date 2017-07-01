@@ -1,57 +1,13 @@
-#Меню настроек игры
-
+import Config
 from bearlibterminal import terminal
-import config
-
-# TODO: переделать меню - меню состоит из строк, каждая строка имеет имя и вызываемую функцию, а не все в кучу и ифами
-# TODO: каждая строка это класс, а функция переопределяется
-
-
-used_comands = [config.comand['Arrow Right'], config.comand['Arrow Left'], config.comand['Arrow Down'],
-                config.comand['Arrow Up'], config.comand['right'], config.comand['left'], config.comand['down'],
-                config.comand['up'], config.comand['Esc'], config.comand['Enter'], config.comand['Close']]
-
 
 upper_border = 1
-bottom_border = config.screen_height - 3
-bgcolor = config.menu_bgcolor
-lighted_bgcolor = config.menu_lighted_bgcolor
-column_width = config.screen_width//2
-#TODO Add spaces in print_text(), not in upper_menu_text
-#TODO add auto_pick up menu
-#TODO перенести текст в файл локализации
-upper_menu_text = ['Управление', 'Основные']
-keyset_left_text = ['Налево', 'Направо', 'Вверх', 'Вниз']
-general_left_text = ['Размер шрифта', 'Язык']
-
-
-
-
-# TODO подсказки и текст меню вынести в локализацию
+bottom_border = Config.screen_height - 3
+bgcolor = Config.menu_bgcolor
+lighted_bgcolor = Config.menu_lighted_bgcolor
+column_width = Config.screen_width//2
+# TODO add auto_pick up menu
 # TODO BackSpace processing while changing keys
-
-
-def get_keyset_text():
-    keyset_right_text = []
-    keyset_left_comands = []
-    for i in range(len(config.changeble_comands)):
-        name = config.changeble_comands[i]
-        code = config.comand[name]
-        key = config.convert_code_to_key(code)
-        keyset_right_text.append(key)
-        keyset_left_comands.append(name)
-    return keyset_left_comands, keyset_right_text
-
-
-def get_general_text():
-    general_right_text = []
-    general_left_comands = []
-    for i in range(len(config.general_settings)):
-        name = config.general_settings[i]
-        value = config.settings[name]
-        general_right_text.append(value)
-        general_left_comands.append(name)
-    return general_left_comands, general_right_text
 
 
 def set_used_comands(used_comands, old_code, new_code):
@@ -59,7 +15,6 @@ def set_used_comands(used_comands, old_code, new_code):
     used_comands[i] = new_code
 
 
-# TODO Убрать used_comands и поставить проверку по config.comand.values()
 # TODO Добавить трибут глобал хинт для вывода внизу экрана
 
 
@@ -79,47 +34,7 @@ class Horizontal_menu():
             self.position_of_name.append(position)
             position += len(name)
 
-    def print_string(self, brighness = bgcolor):
-        terminal.bkcolor(brighness)
-        x = self.position_of_name[self.state]
-        y = 0
-        text = self.text[self.state]
-        terminal.printf(x, y, text)
-        terminal.bkcolor(bgcolor)
-        terminal.refresh()
 
-
-    def go_to(self, direction):
-        self.print_string()
-        dif = 1
-        if direction == 'prev':
-            dif = -1
-        self.state = (self.state + dif) % self.menu_len
-        self.print_string(lighted_bgcolor)
-        terminal.refresh()
-
-
-    def view(self):
-        n= self.state
-        for i in range(self.menu_len):
-            self.state = i
-            self.print_string()
-        self.state = n
-        self.print_string(lighted_bgcolor)
-        self.print_hint()
-        terminal.refresh()
-
-
-    def print_hint(self):
-        text = self.hint
-        n = len(text)
-        count_of_left_spases = (config.screen_width - n)//2
-        count_of_right_spases = config.screen_width - n - count_of_left_spases
-        text = ' ' * count_of_left_spases + text + ' ' * count_of_right_spases
-        x = 0
-        y = bottom_border + 1
-        terminal.printf(x, y, text)
-        terminal.refresh()
 
 
 # Имена меню с пробелами до и после названия
@@ -150,7 +65,7 @@ class Vertical_menu:
     def view(self):
         n= self.state
         for y in range(upper_border+1, bottom_border):
-            terminal.printf(0, y, ' '*config.screen_width)
+            terminal.printf(0, y, ' '*Config.screen_width)
         for i in range(self.menu_len):
             self.state = i
             self.print_string()
@@ -191,10 +106,10 @@ class Keyset_menu(Vertical_menu):
     def make(self):
         self.print_hint('Нажмите клавишу или Esc для отмены')
         name = self.left_comands[self.state]
-        old_code = config.comand[name.strip()]
+        old_code = Config.comand[name.strip()]
         new_code = terminal.read()
-        key = config.convert_code_to_key(new_code)
-        text = config.set_comand(config.comand, name, key)
+        key = Config.convert_code_to_key(new_code)
+        text = Config.set_comand(Config.comand, name, key)
         if text == key:
             set_used_comands(used_comands, old_code, new_code)
             text = text + ' ' * (column_width - len(text))
@@ -214,20 +129,20 @@ class General_menu(Vertical_menu):
             key_pressed = terminal.read()
             size = ''
             while True:
-                if key_pressed == config.comand['Esc']:
+                if key_pressed == Config.comand['Esc']:
                     self.print_string()
                     break
-                elif key_pressed == config.comand['Enter']:
+                elif key_pressed == Config.comand['Enter']:
                     if size.isdigit():
-                        config.set_font_size(size)
-                        font_name = config.settings['font_name']
-                        font_size = int(config.settings['font_size'])
+                        Config.set_font_size(size)
+                        font_name = Config.settings['font_name']
+                        font_size = int(Config.settings['font_size'])
                         self.right_text[self.state] = size
                         terminal.set('font: %s, size=%d;' % (font_name, font_size))
                         terminal.refresh()
                         break
                 else:
-                    new_digit = config.convert_code_to_key(key_pressed)
+                    new_digit = Config.convert_code_to_key(key_pressed)
                     if new_digit.isdigit():
                         size = size + new_digit
                         self.print_hint(size)
@@ -237,8 +152,8 @@ class General_menu(Vertical_menu):
 def run_menu():
     terminal.clear()
     # Separate screen for menu
-    terminal.printf(0, upper_border, '-' * config.screen_width)
-    terminal.printf(0, bottom_border, '-' * config.screen_width)
+    terminal.printf(0, upper_border, '-' * Config.screen_width)
+    terminal.printf(0, bottom_border, '-' * Config.screen_width)
     # Initialise menues
     upper_menu = Horizontal_menu(upper_menu_text)
     upper_menu.view()
@@ -253,21 +168,21 @@ def run_menu():
     while True:
         while key_pressed not in used_comands:
             key_pressed = terminal.read()
-        if key_pressed == config.comand['Esc'] or key_pressed == config.comand['Close']:
+        if key_pressed == Config.comand['Esc'] or key_pressed == Config.comand['Close']:
             break
-        if key_pressed == config.comand['left'] or key_pressed == config.comand['Arrow Left']:
+        if key_pressed == Config.comand['left'] or key_pressed == Config.comand['Arrow Left']:
             upper_menu.go_to('prev')
             current_menu = v_menues[upper_menu.state]
             current_menu.view()
-        if key_pressed == config.comand['right'] or key_pressed == config.comand['Arrow Right']:
+        if key_pressed == Config.comand['right'] or key_pressed == Config.comand['Arrow Right']:
             upper_menu.go_to('next')
             current_menu = v_menues[upper_menu.state]
             current_menu.view()
-        if key_pressed == config.comand['down'] or key_pressed == config.comand['Arrow Down']:
+        if key_pressed == Config.comand['down'] or key_pressed == Config.comand['Arrow Down']:
             current_menu.go_to('next')
-        if key_pressed == config.comand['up'] or key_pressed == config.comand['Arrow Up']:
+        if key_pressed == Config.comand['up'] or key_pressed == Config.comand['Arrow Up']:
             current_menu.go_to('prev')
-        if key_pressed == config.comand['Enter'] or key_pressed == config.comand['Space']:
+        if key_pressed == Config.comand['Enter'] or key_pressed == Config.comand['Space']:
             current_menu.make()
             if current_menu == general_menu and current_menu.state == 0:
                 upper_menu.view()

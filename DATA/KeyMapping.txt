@@ -1,5 +1,5 @@
 In order to get defaults just delete this file
-left = y
-right = 1
-up = 2
-down = h
+left = a
+right = d
+up = w
+down = s

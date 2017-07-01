@@ -1,59 +1,61 @@
 from bearlibterminal import terminal
-import config, Game, localization
+import Config, Game, Localization, Settings
 
 # Цвет фона
-bgcolor = config.menu_bgcolor
+bgcolor = Config.menu_bgcolor
 
 # Цвет подсвеченного фона
-lighted_bgcolor = config.menu_lighted_bgcolor
+lighted_bgcolor = Config.menu_lighted_bgcolor
 
 # Ширина меню (то, что будет подсвечиваться)
-menu_width = config.menu_width
+menu_width = Config.menu_width
 
 # Ширина экрана
-screen_width = config.screen_width
+screen_width = Config.screen_width
 
 # Положение верхней кнопки меню по вертикали
-menu_height = config.screen_height // 2 + 3
+menu_height = Config.screen_height // 2 + 3
 
 # Начальное положение по горизонтали
 start_position_x = (screen_width - menu_width) // 2
 
 # Язык
-language = config.settings['language']
+language = Config.settings['language']
 
 # Используемые в этом меню кнопки клавиатуры
-suitable_keys = config.comand.values()
+suitable_keys = Config.comand.values()
 
 # Используемый шрифт
-font_name = config.settings['font_name']
+font_name = Config.settings['font_name']
 
 # Размер шрифта
-font_size = int(config.settings['font_size'])
+font_size = int(Config.settings['font_size'])
 
 
-# Определяем - текст выводится с подсветкой фона (для текущегоменю) или нет
-def get_bgcolor(lighted=False):
+# Определяем. текст выводится с подсветкой фона (для текущего меню) или нет
+def get_bgcolor(lighted = 'normal'):
     color = bgcolor
     if lighted == 'lighted':
         color = lighted_bgcolor
     return color
 
 # Получение допустимой команды с клавиатуры
-def get_key(self):
+def get_key():
     key = terminal.read()
     while key not in suitable_keys:
         key = terminal.read()
     return key
 
 
-#######################################################################################################################
+####################################### Кнопки главного меню ###########################################################
+
 #  Кнопки главного меню. Номер, текст, выполняемая команда.
 #  Текст сразу переводится и нормализуется. Вычисляется положение по вертикали.
+
 class Menu_button():
     def __init__(self, number, text, make):
         self.number = number
-        self.text = localization.translate_text(text, language)
+        self.text = Localization.translate_text(text, language)
         self.normilized_text = self.normilize_text()
         self.make = make
         self.height = menu_height + self.number
@@ -80,14 +82,16 @@ class Menu_button():
         terminal.refresh()
 
 
-#######################################################################################################################
+###################################### Главное меню ####################################################################
+
 # Главное меню - переход к игре, настройкам, выход
+
 class Main_menu:
     def __init__(self, buttons):
         self.buttons = buttons
         self.length = len(self.buttons)
         self.state = 0
-        self.key = self.get_key()
+        self.key = get_key()
         self.time_to_exit = False
 
     # Вывод всего меню на экран
@@ -103,13 +107,13 @@ class Main_menu:
 
     # Выбор действия по нажатию клавиши
     def make(self, key):
-        if key == config.comand['Esc'] or key == config.comand['Close']:
+        if key == Config.comand['Esc'] or key == Config.comand['Close']:
             self.time_to_exit = True
-        elif key == config.comand['up'] or key == config.comand['Arrow Up']:
+        elif key == Config.comand['up'] or key == Config.comand['Arrow Up']:
             self.up()
-        elif key == config.comand['down'] or key == config.comand['Arrow Down']:
+        elif key == Config.comand['down'] or key == Config.comand['Arrow Down']:
             self.down()
-        elif key == config.comand['Enter']:
+        elif key == Config.comand['Enter']:
             # Последняя кнопка это выход, ее номер self.len -1, остальные кнопки выполняют свои функции
             if self.state == self.length - 1:
                 self.time_to_exit = True
@@ -137,45 +141,56 @@ class Main_menu:
             self.make(key)
 
 
-#######################################################################################################################
-#  Кнопки меню настроек: номер, текст настройки, значение настройки, исполняемая команда. текст сразу переводится и
-#  нормализуется для вывода по центру
+######################################## Кнопки меню настроек управления ###############################################
+
+#  Кнопки меню настроек: номер, имя исполняемой команды. Текст переводится и дополняется пробелами справа и слева до
+#  середины экрана (для подсветки текущей строки)
+
 class Keyset_settings_button():
-    def __init__(self, number, comand_name, comand_code):
+    def __init__(self, number, comand_name):
         self.number = number
-        self.name = comand_name
-        self.left_text =  localization.translate_text(comand_name, language)
-        self.left_normilized_text = self.normilize_text(self.left_text)
+        self.comand_name = comand_name
+        self.left_text = self.get_left_text()
+        self.right_text = self.get_right_text()
         self.right_text_start_position = screen_width // 2
-        self.right_text = localization.translate_text(comand_code, language)
-        self.right_normilized_text = self.normilize_text(self.right_text)
-        self.make = make
         # Верхняя строка уходит на шапку, следующая на разделитель, а со второй строки уже идут кнопки
         self.height = 2 + self.number
 
+    def get_left_text(self):
+        text = self.comand_name
+        translated_text = Localization.translate_text(text, language)
+        centrified_text = self.centrify_text(translated_text)
+        return centrified_text
+
+    def get_right_text(self):
+        comand_name = self.comand_name
+        text = Config.get_comand_key_from_name(comand_name)
+        centrified_text = self.centrify_text(text)
+        return centrified_text
+
     # Выравниваем текст пробелами по центру
-    def normilize_text(self, text):
+    def centrify_text(self, text):
         length = len(text)
         # Левая часть экрана, значит  берем половину. Оставшееся свободное место делим на 2 части
         count_of_left_spases = (screen_width // 2 - length) // 2
         # оставшееся свободное место кидаем направо
         count_of_right_spases = screen_width // 2 - length - count_of_left_spases
-        normilized_text = ' ' * count_of_left_spases + text + ' ' * count_of_right_spases
-        return normilized_text
+        centrified_text = ' ' * count_of_left_spases + text + ' ' * count_of_right_spases
+        return centrified_text
 
     # Выводим кнопку на экран
     def print(self, lighted = False):
         # Сначала левую часть
         x = 0
         y = self.height
-        text = self.left_normilized_text
+        text = self.left_text
         terminal.printf(x, y, text)
         # Потом правую
         current_bgcolor = get_bgcolor(lighted)
         terminal.bkcolor(current_bgcolor)
         x = self.right_text_start_position
         y = self.height
-        text = self.right_normilized_text
+        text = self.right_text
         terminal.printf(x, y, text)
         # Возвращаем подсветку, как было
         terminal.bkcolor(bgcolor)
@@ -186,31 +201,28 @@ class Keyset_settings_button():
     def print_message(self, text):
         x = self.right_text_start_position
         y = self.height
-        text = text + ' ' * (40 - len(text))
+        text = text + ' ' * (screen_width // 2 - len(text))
         terminal.printf(x, y, text)
 
     def make(self):
         self.clear_right_part()
-        message = localization.translate_text('press any key')
+        message = Localization.translate_text('press any key')
         self.print_message(message)
         key = get_key();
-        message = config.set_comand(self.name, key)
+        message = Config.set_comand(self.name, key)
         self.print_message(message)
 
 
 
 # Кнопки настроек управления: налево, направо, вверх, вниз
-comand_key = config.get_comand_key('left')
-keyset_settings_menu_button_left = Keyset_settings_button(0, 'left', comand_key)
 
-comand_key = config.get_comand_key('right')
-keyset_settings_menu_button_right = Keyset_settings_button(0, 'right', comand_key)
+keyset_settings_menu_button_left = Keyset_settings_button(0, 'left')
 
-comand_key = config.get_comand_key('up')
-keyset_settings_menu_button_up = Keyset_settings_button(0, 'up', comand_key)
+keyset_settings_menu_button_right = Keyset_settings_button(1, 'right')
 
-comand_key = config.get_comand_key('down')
-keyset_settings_menu_button_down = Keyset_settings_button(0, 'down', comand_key)
+keyset_settings_menu_button_up = Keyset_settings_button(0, 'up')
+
+keyset_settings_menu_button_down = Keyset_settings_button(0, 'down')
 
 #TODO Собрать кнопки в меню настроек управления, сделать класс меню настроек управления. Сделать кнопки основного меню:
 #TODO  размер шрифта и язык, ну и само основное меню

@@ -1,5 +1,5 @@
 import AreaOfSight
-from config import comand
+from Config import comand
 from bearlibterminal import terminal
 
 floor_propeties = {'icon': '.', 'transparent': True, 'passable': True, 'color': 'white'}
