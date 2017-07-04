@@ -1,5 +1,5 @@
 from bearlibterminal import terminal
-import Config, Game, Localization, Settings
+import Config, Game, Localization
 
 # Цвет фона
 bgcolor = Config.menu_bgcolor
@@ -33,9 +33,9 @@ font_size = int(Config.settings['font_size'])
 
 
 # Определяем. текст выводится с подсветкой фона (для текущего меню) или нет
-def get_bgcolor(lighted = 'normal'):
+def get_bgcolor(lighted = False):
     color = bgcolor
-    if lighted == 'lighted':
+    if lighted:
         color = lighted_bgcolor
     return color
 
@@ -52,7 +52,7 @@ def get_key():
 #  Кнопки главного меню. Номер, текст, выполняемая команда.
 #  Текст сразу переводится и нормализуется. Вычисляется положение по вертикали.
 
-class Menu_button():
+class Main_menu_button():
     def __init__(self, number, text, make):
         self.number = number
         self.text = Localization.translate_text(text, language)
@@ -98,7 +98,8 @@ class Main_menu:
     def view(self):
         terminal.clear()
         self.state = 0
-        self.buttons[0].print('lighted')
+        lighted = True
+        self.buttons[0].print(lighted)
         for i in range(1, self.length):
             self.state = i
             self.buttons[i].print()
@@ -114,7 +115,7 @@ class Main_menu:
         elif key == Config.comand['down'] or key == Config.comand['Arrow Down']:
             self.down()
         elif key == Config.comand['Enter']:
-            # Последняя кнопка это выход, ее номер self.len -1, остальные кнопки выполняют свои функции
+            # Последняя кнопка это выход, ее номер self.len - 1, остальные кнопки выполняют свои функции
             if self.state == self.length - 1:
                 self.time_to_exit = True
             else:
@@ -125,13 +126,15 @@ class Main_menu:
     def up(self):
         self.buttons[self.state].print()
         self.state = (self.state - 1) % self.length
-        self.buttons[self.state].print('lighted')
+        lighted = True
+        self.buttons[self.state].print(lighted)
 
     # Переход кнопкой ниже
     def down(self):
         self.buttons[self.state].print()
         self.state = (self.state + 1) % self.length
-        self.buttons[self.state].print('lighted')
+        lighted = True
+        self.buttons[self.state].print(lighted)
 
     # Запуск меню
     def run(self):
@@ -146,7 +149,7 @@ class Main_menu:
 #  Кнопки меню настроек: номер, имя исполняемой команды. Текст переводится и дополняется пробелами справа и слева до
 #  середины экрана (для подсветки текущей строки)
 
-class Keyset_settings_button():
+class Keyset_menu_button():
     def __init__(self, number, comand_name):
         self.number = number
         self.comand_name = comand_name
@@ -201,40 +204,123 @@ class Keyset_settings_button():
     def print_message(self, text):
         x = self.right_text_start_position
         y = self.height
-        text = text + ' ' * (screen_width // 2 - len(text))
+        self.clear_right_text()
         terminal.printf(x, y, text)
 
+    # Команда, выполняемая по нажатию кнопки
     def make(self):
-        self.clear_right_part()
+        self.clear_right_text()
         message = Localization.translate_text('press any key')
         self.print_message(message)
         key = get_key();
-        message = Config.set_comand(self.name, key)
+        message = Config.set_comand(self.comand_name, key)
         self.print_message(message)
 
+    # Очистка правой части строки
+    def clear_right_text(self):
+        x = self.right_text_start_position
+        y = self.height
+        # Заполняем пробелами правую часть строки
+        text = ' ' * (screen_width//2)
+        terminal.printf(text, x, y)
+
+######################################## Меню настроек управления #####################################################
+
+class Keyset_menu():
+    def __init(self, buttons):
+        # Заголовок меню
+        name = 'Keyset menu'
+        translated_name = Localization.translate_text(name, language)
+        normilized_name = '| ' + translated_name + ' |'
+        self.name = normilized_name
+        # Подсказка
+        hint = 'Press Enter to change value'
+        translated_hint = Localization.translate_text(hint, language)
+        centrified_hint = self.centrify_text(translated_hint)
+        self.hint = centrified_hint
+        # Кнопки меню
+        self.buttons = buttons
+        # Начальная позиция
+        self.state = 0
+        # Количество кнопок
+        self.length = len(buttons)
+        # Условие выхода из меню
+        self.time_to_exit = False
+
+    def print(self):
+        for button in self.buttons:
+            # Если номер кнопки совпадает с номером активной позиции меню, то подсвечиваем
+            button.print(self.state == button.number)
+
+    def up(self):
+        button = self.buttons[self.state]
+        button.print()
+        self.state = (self.state - 1) % self.length
+        lighted = True
+        button = self.buttons[self.state]
+        button.print(lighted)
+
+    def down(self):
+        button = self.buttons[self.state]
+        button.print()
+        self.state = (self.state + 1) % self.length
+        lighted = True
+        button = self.buttons[self.state]
+        button.print(lighted)
+
+    def run(self):
+        self.print()
+        while not self.time_to_exit:
+            key = get_key()
+            self.make(key)
+
+    def make(self, key):
+        if key == Config.comand['Esc'] or key == Config.comand['Close']:
+            self.time_to_exit = True
+        elif key == Config.comand['up'] or key == Config.comand['Arrow Up']:
+            self.up()
+        elif key == Config.comand['down'] or key == Config.comand['Arrow Down']:
+            self.down()
+        elif key == Config.comand['Enter']:
+            # Последняя кнопка это выход, ее номер self.len - 1, остальные кнопки выполняют свои функции
+            self.buttons[self.state].make()
+            self.view()
+
+######################################## Меню настроек игры ############################################################
+
+# Включает в себя все меню настроек: управления, экрана и т.д.
+
+class Game_menu():
+    def __init__(self, menues):
+        # Начальное положение
+        self.state = 0
 
 
-# Кнопки настроек управления: налево, направо, вверх, вниз
 
-keyset_settings_menu_button_left = Keyset_settings_button(0, 'left')
 
-keyset_settings_menu_button_right = Keyset_settings_button(1, 'right')
-
-keyset_settings_menu_button_up = Keyset_settings_button(0, 'up')
-
-keyset_settings_menu_button_down = Keyset_settings_button(0, 'down')
-
-#TODO Собрать кнопки в меню настроек управления, сделать класс меню настроек управления. Сделать кнопки основного меню:
-#TODO  размер шрифта и язык, ну и само основное меню
+# TODO Собрать кнопки в меню настроек управления, сделать класс меню настроек управления. Сделать кнопки основного меню:
+# TODO  размер шрифта и язык, ну и само основное меню
 
 # Открываем консоль, задаем шрифт и его размер.
 terminal.open()
 terminal.set('font: %s, size=%d;' % (font_name, font_size))
 
+# Создаем кнопки настроек управления: налево, направо, вверх, вниз
+
+keyset_menu_button_left = Keyset_menu_button(0, 'left')
+keyset_menu_button_right = Keyset_menu_button(1, 'right')
+keyset_menu_button_up = Keyset_menu_button(0, 'up')
+keyset_menu_button_down = Keyset_menu_button(0, 'down')
+
+# Собираем их вместе и создаем меню настроек
+
+keyset_menu_buttons = [keyset_menu_button_left, keyset_menu_button_right, keyset_menu_button_up, keyset_menu_button_down]
+keyset_menu = Keyset_menu(keyset_menu_buttons)
+
 #  Задаем кнопки главного меню
-main_menu_button_start_game = Menu_button(0, 'Start game', Game.run_game)
-main_menu_button_settings = Menu_button(1, 'Settings', Settings.run_menu)
-main_menu_button_exit = Menu_button(2, 'Exit', None)
+main_menu_button_start_game = Main_menu_button(0, 'Start game', Game.run_game)
+main_menu_button_settings = Main_menu_button(1, 'Settings', Settings.run_menu)
+main_menu_button_exit = Main_menu_button(2, 'Exit', None)
 
 #  Собираем их вместе
 main_menu_buttons = [main_menu_button_start_game, main_menu_button_settings, main_menu_button_exit]
