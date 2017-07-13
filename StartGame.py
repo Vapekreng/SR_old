@@ -289,7 +289,7 @@ class Keyset_menu_button(Sub_menu_button):
 
 ######################################## Кнопка настройки языка #####################################################
 
-class Game_menu_button_language(Sub_menu_button):
+class Interface_menu_button_language(Sub_menu_button):
 
     def get_right_text(self):
         name = self.name
@@ -337,7 +337,7 @@ class Game_menu_button_language(Sub_menu_button):
 
 ######################################## Кнопка настройки размера шрифта #####################################################
 
-class Game_menu_button_font_size(Sub_menu_button):
+class Interface_menu_button_font_size(Sub_menu_button):
 
     def get_right_text(self):
         self.font_size = self.get_font_size()
@@ -521,12 +521,12 @@ keyset_menu_button_right = Keyset_menu_button(1, 'right', 'Press enter')
 keyset_menu_button_up = Keyset_menu_button(2, 'up', 'Press enter')
 keyset_menu_button_down = Keyset_menu_button(3, 'down', 'Press enter')
 
-game_menu_button_language = Game_menu_button_language(0, 'language', 'Press enter and left/right (need restart)')
-game_menu_button_font_size = Game_menu_button_font_size(1, 'font size', 'Press enter and left/right (need restart)')
+interface_menu_button_language = Interface_menu_button_language(0, 'language', 'Press enter and left/right (need restart)')
+interface_menu_button_font_size = Interface_menu_button_font_size(1, 'font size', 'Press enter and left/right (need restart)')
 
 # Собираем их вместе
 keyset_menu_buttons = [keyset_menu_button_left, keyset_menu_button_right, keyset_menu_button_up, keyset_menu_button_down]
-game_menu_buttons = [game_menu_button_language, game_menu_button_font_size]
+game_menu_buttons = [interface_menu_button_language, interface_menu_button_font_size]
 
 # Создаем подменюшки
 keyset_menu = Sub_menu('Keyset menu', keyset_menu_buttons)
