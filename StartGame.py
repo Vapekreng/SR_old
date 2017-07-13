@@ -1,4 +1,4 @@
-# TODO доделать кнопки меню интерфейса.
+# TODO доделать кнопки меню интерфейса. Сделать значки <-- button --> при нажатии энтер
 
 from bearlibterminal import terminal
 import Config, Game, Localization
@@ -213,10 +213,14 @@ class Sub_menu_button():
         terminal.refresh()
 
     # Выводим на правую часть экрана сообщение
-    def print_message(self, text):
+    def print_message(self, text, button_with_arrows = False):
         x = self.right_text_start_position
         y = self.height
         self.clear_right_text()
+        left_arrow = '<--  '
+        right_arrow = '  -->'
+        if button_with_arrows:
+            text = left_arrow + text + right_arrow
         centrifyed_text = self.centrify_text(text)
         terminal.printf(x, y, centrifyed_text)
         terminal.refresh()
@@ -304,31 +308,77 @@ class Game_menu_button_language(Sub_menu_button):
     def next_lang(self):
         self.state_of_language = (self.state_of_language + 1) % len(self.languages)
         new_lang = self.languages[self.state_of_language]
-        self.print_message(new_lang)
+        self.print_message(new_lang, True)
 
     def prev_lang(self):
         self.state_of_language = (self.state_of_language - 1) % len(self.languages)
         new_lang = self.languages[self.state_of_language]
-        self.print_message(new_lang)
+        self.print_message(new_lang, True)
 
     # Команда, выполняемая по нажатию кнопки
     def make(self):
         self.set_list_of_languages()
         self.get_state_of_languages()
-        self.print_message(Config.settings['language'])
+        self.print_message(Config.settings['language'], True)
         key = terminal.read()
+        # Эти кнопки завершают ввод значения
         while key not in [Config.comand['enter'], Config.comand['esc']]:
             if key in [Config.comand['left'], Config.comand['arrow left']]:
                 self.next_lang()
             if key in [Config.comand['right'], Config.comand['arrow right']]:
                 self.prev_lang()
             key = terminal.read()
+        # Выход происходит по энтеру и эскейпу, если эскейп - ничего не сохраняем
         if key == Config.comand['enter']:
             new_language = self.languages[self.state_of_language]
             Config.set_language(new_language)
         self.right_text = self.get_right_text()
         self.print()
 
+######################################## Кнопка настройки размера шрифта #####################################################
+
+class Game_menu_button_font_size(Sub_menu_button):
+
+    def get_right_text(self):
+        self.font_size = self.get_font_size()
+        text = str(self.font_size)
+        centrified_text = self.centrify_text(text)
+        return centrified_text
+        # font_size это число, а right_text это текст. Число нужно для увеличения - уменьшенияБ а текст для вывода
+        # причем текст уже отформатирован по центру
+
+
+    def get_font_size(self):
+        font_size = int(Config.settings['font_size'])
+        return font_size
+
+    def make(self):
+        self.font_size = self.get_font_size()
+        text = str(self.font_size)
+        self.print_message(text, True)
+        key = terminal.read()
+        while key not in [Config.comand['enter'], Config.comand['esc']]:
+            if key in [Config.comand['left'], Config.comand['arrow left']]:
+                self.decrease_font_size()
+            if key in [Config.comand['right'], Config.comand['arrow right']]:
+                self.increase_font_size()
+            key = terminal.read()
+        if key == Config.comand['enter']:
+            new_font_size = str(self.font_size)
+            Config.set_font_size(new_font_size)
+        self.right_text = self.get_right_text()
+        self.print()
+
+    def decrease_font_size(self):
+        if self.font_size > 0:
+            self.font_size -= 1
+        text = str(self.font_size)
+        self.print_message(text, True)
+
+    def increase_font_size(self):
+        self.font_size += 1
+        text = str(self.font_size)
+        self.print_message(text, True)
 
 
 ############################################### Меню настроек ##########################################################
@@ -472,10 +522,11 @@ keyset_menu_button_up = Keyset_menu_button(2, 'up', 'Press enter')
 keyset_menu_button_down = Keyset_menu_button(3, 'down', 'Press enter')
 
 game_menu_button_language = Game_menu_button_language(0, 'language', 'Press enter and left/right (need restart)')
+game_menu_button_font_size = Game_menu_button_font_size(1, 'font size', 'Press enter and left/right (need restart)')
 
 # Собираем их вместе
 keyset_menu_buttons = [keyset_menu_button_left, keyset_menu_button_right, keyset_menu_button_up, keyset_menu_button_down]
-game_menu_buttons = [game_menu_button_language]
+game_menu_buttons = [game_menu_button_language, game_menu_button_font_size]
 
 # Создаем подменюшки
 keyset_menu = Sub_menu('Keyset menu', keyset_menu_buttons)
