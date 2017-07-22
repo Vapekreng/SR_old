@@ -1,1 +1,1 @@
-# Rouglike game on python. Russian language. Localisation is planned
+# Rouglike game on python. Russian and english language. 
