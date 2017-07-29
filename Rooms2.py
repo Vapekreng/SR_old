@@ -1,4 +1,3 @@
-# TODO соединение комнат коридорами
 import Config, random
 from bearlibterminal import terminal
 
@@ -24,7 +23,7 @@ cell_count_y = 2
 min_cell_width = map_width // cell_count_x
 min_cell_height = map_height // cell_count_y
 
-# type_sizes - размеры (в минимальных ячейках карты) комнат или ячеек
+# type_sizes - размеры (в минимальных ячейках карты) комнат
 
 types_sizes = dict()
 types_sizes['normal'] = [2, 1]
@@ -98,6 +97,7 @@ titles_icons['free'] = ''
 titles_icons['room'] = '.'
 titles_icons['passage'] = '.'
 titles_icons['door'] = '+'
+titles_icons['unpassable wall'] = '#'
 
 # Словарь для замены тайтлов проведенного коридора
 
@@ -105,6 +105,7 @@ passage_dict = dict()
 passage_dict['wall'] = 'door'
 passage_dict['free'] = 'passage'
 passage_dict['room'] = 'room'
+passage_dict['unpassable wall'] = 'unpassable wall'
 
 # Строим прямоугольную комнату. Входные данные: тип комнаты, тип занимаемой ячейки, адрес ячейки
 class Rectangular_room:
@@ -197,10 +198,9 @@ class Map:
     def print(self):
         for x in range(map_width):
             for y in range(map_height):
-                if self.titles[x][y]:
-                    title = self.titles[x][y]
-                    icon = titles_icons[title]
-                    terminal.printf(x, y + 2, icon)
+                title = self.titles[x][y]
+                icon = titles_icons[title]
+                terminal.printf(x, y + 2, icon)
 
     # Проверяет, свободны ли ячейки карты для данного типа
     def check_spase_for_type(self, checked_type, x0, y0):
@@ -348,18 +348,105 @@ class Map:
             y = titles[1]
             self.add_passages_walls(x, y)
 
+    # Для того, чтобы проложенные коридоры не съедали стены комнат и коридоров (например, один коридор идет сразу над
+    # други и получается коридор в 2 клетки шириной), маркируем клетки углов комнат и все клетки стен (как коридоров,
+    # так и комнат), у которых сумма координат, как непроходимые. В итоге получим, что пересекать коридоры и комнаты
+    # можно, а идти вдоль них нельзя. Применять метод будем перед прокладкой коридоров и после каждого проложенного
+    # коридора.
+
+    # Помечаем углы комнат и нужные стены комнат, как непроходимые
+
+    def set_unpassable_walls(self):
+        # Сначала маркируем непроходимыми углы комнат. В комнатах координаты углов задают координаты ПУСТОГО
+        # пространства, а не стен, так что для стен координаты ьудут изменены в сторону от центра
+        for room in self.rooms:
+            x0 = room.coord[0] - 1
+            y0 = room.coord[1] - 1
+            x1 = room.coord[2] + 1
+            y1 = room.coord[3] + 1
+            self.titles[x0][y0] = 'unpassable wall'
+            self.titles[x1][y0] = 'unpassable wall'
+            self.titles[x0][y1] = 'unpassable wall'
+            self.titles[x1][y1] = 'unpassable wall'
+        # Теперь прорбегаем всю карту и заменяем 'wall' на 'unpassable wall', если сумма координат четная
+        for x in range(1, map_width):
+            for y in range(1, map_height):
+                if (x + y) % 2 == 0:
+                    if self.titles[x][y] == 'wall':
+                        self.titles[x][y] = 'unpassable wall'
+
+    # При добавлении стен коридора, нужные стены пометим непроходимыми
     def add_passages_walls(self, x0 ,y0):
         for diff in [[-1, 1], [-1, 0], [-1, -1], [0, 1], [0, -1], [1, 1], [1, 0], [1,- 1]]:
             x = x0 + diff[0]
             y = y0 + diff[1]
             if self.titles[x][y] == 'free':
-                self.titles[x][y] = 'wall'
+                # Сумма координат четная - помечаем непроходимой стеной
+                if (x + y) % 2 == 0:
+                    self.titles[x][y] = 'unpassable wall'
+                else:
+                    self.titles[x][y] = 'wall'
+
+    # Создаем сеть коридоров (net), связывающую все комнаты вместе. Для начала берем последнюю комнату, добавляем её в
+    # список net - в нем будут храниться уже связанные комнаты, потом берем случайную из оставшихся и соединяем центры
+    # комнат коридором
+
+    def make_net(self):
+        rooms = self.rooms
+        count_of_rooms_in_net = 0
+        count_of_rooms_not_in_net = len(rooms)
+        if count_of_rooms_not_in_net > 1:
+            net = [rooms[count_of_rooms_not_in_net - 1]]
+            rooms.pop(count_of_rooms_not_in_net - 1)
+            count_of_rooms_in_net += 1
+            count_of_rooms_not_in_net -= 1
+            while count_of_rooms_not_in_net > 0:
+                # Номер комнаты не в сети
+                n1 = random.randint(0, count_of_rooms_not_in_net - 1)
+                x1, y1 = self.get_center_of_room(rooms[n1])
+                # Ищем номер ближайшей комнаты в сети для комнаты с центром в точке x1, y1
+                n2 = self.get_closest_room(x1, y1, net)
+                # Соединяем середины этих 2 комнат
+                x2, y2 = self.get_center_of_room(net[n2])
+                # Соединяем комнаты
+                self.get_passage(x1, y1, x2, y2)
+                # Добавляем комнату в сеть, убираем из несоединенных, тикаем счетчики
+                net.append(rooms[n1])
+                rooms.pop(n1)
+                count_of_rooms_in_net += 1
+                count_of_rooms_not_in_net -= 1
+
+    # Ищем координаты центра комнаты
+    def get_center_of_room(self, room):
+        x0 = room.coord[0]
+        y0 = room.coord[1]
+        x1 = room.coord[2]
+        y1 = room.coord[3]
+        x = (x0 + x1) // 2
+        y = (y0 + y1) // 2
+        return x, y
+
+    # Для точки x1, y1 ищем ближайшую комнату в сети
+    def get_closest_room(self, x1, y1, net):
+        x2, y2 = self.get_center_of_room(net[0])
+        min_dist = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)
+        n = 0
+        count_of_rooms_in_net = len(net)
+        if count_of_rooms_in_net > 1:
+            for i in range(1, count_of_rooms_in_net):
+                x2, y2 = self.get_center_of_room(net[i])
+                dist = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)
+                if dist < min_dist:
+                    min_dist = dist
+                    n = i
+        return n
 
 terminal.open()
 terminal.set('font: %s, size=%d;' % (font_name, font_size))
 map = Map()
 map.get_rectangular_map()
-passage = map.get_passage(11, 11, 55, 15)
+map.set_unpassable_walls()
+map.make_net()
 map.print()
 terminal.refresh()
 terminal.read()
