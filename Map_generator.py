@@ -1,6 +1,6 @@
-# TODO В комнатах маркировать непроходимыми только по 3 угловые клетки на каждом углу или даже по одной
-# TODO При добавлении двери делать соседние стены непроходимыми
-import Config, random
+# TODO к тайтлам комнат добавлять номер комнаты и тип (тайная, с ловушками, с эффектом и т. д.)
+# TODO двери, ступеньки
+import Config, random, pickle
 from bearlibterminal import terminal
 
 screen_width = Config.screen_width
@@ -109,6 +109,16 @@ passage_dict['free'] = 'passage'
 passage_dict['room'] = 'room'
 passage_dict['unpassable wall'] = 'unpassable wall'
 
+# Словарь для перевода названия рельефа в свойства тайтла. По порядку: прозрачность, иконка, проходимость, цвет
+title_propeties = dict()
+title_propeties['room'] = [True, '.', True, 'white']
+title_propeties['passage'] = [True, '.', True, 'white']
+title_propeties['wall'] = [False, '#', False, 'white']
+title_propeties['unpassable wall'] = [False, '#', False, 'white']
+title_propeties['border'] = [False, '#', False, 'white']
+title_propeties['border and wall'] = [False, '#', False, 'white']
+title_propeties['free'] = [False, '#', False, 'white']
+title_propeties['door'] = [False, '+', False, 'white']
 
 ############################################ Построение прямоугольных комнат ###########################################
 
@@ -439,23 +449,55 @@ class Map:
                 else:
                     self.titles[x][y] = 'wall'
 
+############################################## Добавляем двери #########################################################
+
+    #def add_stairs(self):
+
 ############################################ Вывод карты на экран ######################################################
 
-    # Выводит на экран карту: границы, комнаты и прилегающие стены для просмотра
-    def print(self):
-        for x in range(map_width):
-            for y in range(map_height):
-                title = self.titles[x][y]
-                icon = titles_icons[title]
-                terminal.printf(x, y + 2, icon)
+# Финальная обработка - переводим полученную карту в тайтлы
+
+# Ячейка карты, может содержать пол, предметы, механизмы, мобов
+class Titles:
+    def __init__(self, char):
+        self.mob = None
+        self.items = []
+        self.transparent = title_propeties[char][0]
+        self.icon = title_propeties[char][1]
+        self.passable = title_propeties[char][2]
+        self.color = title_propeties[char][3]
+
+def get_titles(new_map):
+    titles = []
+    for x in range(map_width):
+        titles.append([None] * map_height)
+    for x in range(map_width):
+        for y in range(map_height):
+            print(x, y, map_height)
+            char = new_map[x][y]
+            titles[x][y] = Titles(char)
+    return titles
+
+# Выводит на экран карту: границы, комнаты и прилегающие стены для просмотра. Можно смело удалять
+def print_(titles):
+    for x in range(map_width):
+        for y in range(map_height):
+            terminal.printf(x, y + 2, titles[x][y].icon)
+
+# итоговая функция для внешних запросов
+def get_map(map_type = None, stairs = [[0, 0, 1]]):
+    new_map = Map()
+    new_map.get_rectangular_rooms()
+    new_map.set_unpassable_walls()
+    new_map.make_net()
+    return new_map.titles
 
 
 terminal.open()
 terminal.set('font: %s, size=%d;' % (font_name, font_size))
-new_map = Map()
-new_map.get_rectangular_rooms()
-new_map.set_unpassable_walls()
-new_map.make_net()
-new_map.print()
+new_map = get_map()
+titles = get_titles(new_map)
+print_(titles)
 terminal.refresh()
 terminal.read()
+
