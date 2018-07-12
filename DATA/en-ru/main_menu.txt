@@ -1,0 +1,4 @@
+New game = Новая игра
+Load game = Загрузить игру
+Settings = Настройки
+Exit = Выход
