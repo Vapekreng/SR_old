@@ -8,4 +8,3 @@ font_size = current_settings.font_size
 terminal.set('font: %s, size=%d;' % (font_name, font_size))
 main_menu = MainMenu()
 main_menu.run_loop()
-
