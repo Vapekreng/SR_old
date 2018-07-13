@@ -1,19 +1,26 @@
 import os
+import settings
 
 LOCALIZATION_PATH = '\\DATA\\localization\\en-'
 TRANSLATE_SEPARATOR = '='
+DEFAULT_LANGUAGE = 'en'
 
 
 class Localization:
 
-    def __init__(self, language):
-        self.language = language
+    def __init__(self):
+        self.language = settings.current_settings.language
         self.localization = self._set_localization()
 
     def change_language(self, new_language):
         if self._new_language_is_correct(new_language):
             self.language = new_language
             self._set_localization()
+
+    def translate(self, text):
+        if text in self.localization.keys():
+            return self.localization[text]
+        return text
 
     @staticmethod
     def _new_language_is_correct(new_language):
