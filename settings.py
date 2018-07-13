@@ -6,7 +6,8 @@ DEFAULT_FONT_NAME = 'UbuntuMono-R.ttf'
 DEFAULT_LANGUAGE = 'en'
 
 SETTINGS_PATH = 'DATA\\settings.pickle'
-LOCALIZATION_PATH = 'DATA\\localization\\en-'
+LOCALIZATION_PATH_START_SYMBOLS = 'DATA\\localization\\en-'
+LOCALIZATION_PATH_LAST_SYMBOLS = '.txt'
 MIN_FONT_SIZE = 8
 MAX_FONT_SIZE = 40
 
@@ -29,6 +30,7 @@ class Settings:
             self.font_name = new_font_name
             self._save()
 
+    # Язык менять из localization.py Иначе некорректно работает
     def set_language(self, new_language):
         if self._new_language_path_is_correct(new_language):
             self.language = new_language
@@ -83,7 +85,8 @@ class Settings:
     def _new_language_path_is_correct(new_language):
         if type(new_language) is not str:
             return False
-        return os.path.isdir(LOCALIZATION_PATH + new_language)
+        new_language_path = LOCALIZATION_PATH_START_SYMBOLS + new_language + LOCALIZATION_PATH_LAST_SYMBOLS
+        return os.path.isfile(new_language_path)
 
     def _load_defaults(self):
         self.font_size = DEFAULT_FONT_SIZE
