@@ -1,56 +1,54 @@
 import os
 
+LOCALIZATION_PATH = '\\DATA\\localization\\en-'
+TRANSLATE_SEPARATOR = '='
+
 
 class Localization:
 
     def __init__(self, language):
-        pass
+        self.language = language
+        self.localization = self._set_localization()
 
+    def change_language(self, new_language):
+        if self._new_language_is_correct(new_language):
+            self.language = new_language
+            self._set_localization()
 
+    @staticmethod
+    def _new_language_is_correct(new_language):
+        if type(new_language) is not str:
+            return False
+        if not os.path.isdir(LOCALIZATION_PATH + new_language):
+            return False
+        return True
 
-def get_localization(language):
-    language = settings.settings['language']
-    # Расположение файла локализации
-    file_name = 'DATA\\localization\\en-' + language +'.txt'
-    if os.path.isfile(file_name):
-        f = open(file_name)
+    def _set_localization(self):
+        localization_path = self._get_localization_path()
+        new_localization = {}
+        if os.path.isfile(localization_path):
+            f = open(localization_path, 'r')
+            new_localization = self._get_localization_from_file(f)
+            f.close()
+        return new_localization
+
+    def _get_localization_path(self):
+        localization_path = LOCALIZATION_PATH + self.language
+        return localization_path
+
+    def _get_localization_from_file(self, f):
+        new_localization = {}
         for line in f:
-            if line.find('=') != -1:
-                line = line.strip()
-                line = line.replace('\n', '')
-                line = line.split('=')
-                english = line[0].strip()
-                translated = line[1].strip()
-                localization[english] = translated
-        f.close()
-    return localization
+            original, translated = self._get_translate_from_line(line)
+            new_localization[original] = translated
+        return new_localization
 
-
-# Перевод списка, результат - переведенный список
-# Если перевод для элемента отсутствует в файле - оставляется английский текст
-def translate_list(list):
-    translated_list = list
-    language = settings.settings['language']
-    if language != 'en':
-        length = len(list)
-        for i in range(length):
-            try:
-                translated_list[i] = localization[list[i]]
-            except KeyError:
-                pass
-    return translated_list
-
-
-# Перевод строки, результат - переведенная строка
-# Если перевод в файле отсутствует - оставляется английский текмт
-def translate_text(text):
-    translated_text = text
-    language = settings.settings['language']
-    if language != 'en':
-        try:
-            translated_text = localization[text]
-        except KeyError:
-            translated_text = text
-    return translated_text
-
-localization = get_localization(settings.settings['language'])
+    @staticmethod
+    def _get_translate_from_line(line):
+        original, splitted = '', ''
+        if line.find(TRANSLATE_SEPARATOR) != -1:
+            line.replace('\n', '')
+            line.strip()
+            splitted_line = line.split(TRANSLATE_SEPARATOR)
+            original, translated = splitted_line[0], splitted_line[1]
+        return original, splitted
