@@ -36,17 +36,20 @@ class Settings:
 
     def _set_saved_settings(self):
         if self._new_settings_path_is_correct(SETTINGS_PATH):
-            new_settings = self._load()
+            new_settings = self._load_settings()
             self._update(new_settings)
 
     def _save(self):
         f = open(SETTINGS_PATH, 'wb')
         pickle.dump(self, f)
+        f.close()
 
     @staticmethod
-    def _load():
+    def _load_settings():
         f = open(SETTINGS_PATH, 'rb')
-        return pickle.load(f)
+        new_settings = pickle.load(f)
+        f.close()
+        return new_settings
 
     def _update(self, new_settings):
         new_font_size = new_settings.font_size
