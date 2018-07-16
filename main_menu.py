@@ -7,8 +7,7 @@ import setting_menues
 import config
 
 MAIN_MENU_NAMES = ['New game', 'Load game', 'Settings', 'Exit']
-MAIN_MENU_USED_COMANDS = ['left', 'right', 'up', 'down', 'arrow left', 'arrow right', 'arrow up', 'arrow down', 'enter',
-                          'esc', 'close']
+MAIN_MENU_USED_COMANDS = ['up', 'down', 'arrow up', 'arrow down', 'enter', 'esc', 'close']
 SCREEN_WIDTH = config.SCREEN_WIDTH
 SCREEN_HEIGHT = config.SCREEN_HEIGHT
 COUNT_OF_SPACES = 2
