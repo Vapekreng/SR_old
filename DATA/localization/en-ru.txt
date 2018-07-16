@@ -1,0 +1,6 @@
+New game = Новая игра
+Load game = Продолжить
+Settings = Настройки
+Exit = Выход
+Settings = Настройки
+Controls = Управление
