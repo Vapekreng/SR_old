@@ -77,12 +77,13 @@ _USABLE_CODES = _KEY_CODES.values()
 class Keyset:
 
     def __init__(self):
+        """Создание класса для настроек управления"""
         self.comands = dict()
         if self._keyset_is_exist():
             self._load()
         self.comands.update(_UNCHANGEBLE_COMANDS)
         self._check()
-        self._save()
+        self.save()
 
     @staticmethod
     def _keyset_is_exist():
@@ -107,6 +108,7 @@ class Keyset:
         return name, key
 
     def set_comand(self, name, key):
+        """Задает для команы name клавишу key"""
         if self._key_is_good(key) and self._name_is_good(name):
             code = _KEY_CODES[key]
             self.comands[name] = code
@@ -130,9 +132,10 @@ class Keyset:
             self.comands = _DEFAULT_COMANDS
 
     def get_comands(self):
+        """Возвращает словарь команд"""
         return self.comands
 
-    def _save(self):
+    def save(self):
         f = open(_KEYSET_PATH, 'w')
         for name in _CHANGEBLE_COMANDS:
             code = self.comands[name]
