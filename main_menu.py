@@ -3,12 +3,12 @@ from bearlibterminal import terminal
 import localization
 import keyset
 import adventure
-import setting_menues
+import controls
 import config
+import game_settings
 
-MAIN_MENU_NAMES = ['New game', 'Load game', 'Settings', 'Exit']
-MAIN_MENU_USED_COMANDS = ['left', 'right', 'up', 'down', 'arrow left', 'arrow right', 'arrow up', 'arrow down', 'enter',
-                       'esc', 'close']
+MAIN_MENU_NAMES = ['New game', 'Load game', 'Controls', 'Settings', 'Exit']
+MAIN_MENU_USED_COMANDS = ['up', 'down', 'arrow up', 'arrow down', 'enter', 'esc', 'close']
 SCREEN_WIDTH = config.SCREEN_WIDTH
 SCREEN_HEIGHT = config.SCREEN_HEIGHT
 COUNT_OF_SPACES = 2
@@ -23,8 +23,9 @@ class MainMenu:
         self.time_to_quit = False
         self.keyset = keyset.current_keyset.get_codes()
         self.button_names = MAIN_MENU_NAMES
-        self.position = 0
         self.length = len(self.button_names)
+        self._set_translated_button_names()
+        self.position = 0
         self.width = self._init_menu_width()
         self.init_coord_x = self._init_init_coord_x()
         self.init_coord_y = self._get_init_coord_y()
@@ -36,7 +37,8 @@ class MainMenu:
     def _init_dict_of_button_comands(self):
         self.button_comands[0] = adventure.new_game
         self.button_comands[1] = adventure.load_game
-        self.button_comands[2] = setting_menues.main_loop
+        self.button_comands[2] = controls.main_loop
+        self.button_comands[3] = game_settings.main_loop
         self.button_comands[3] = self._set_quit
 
     def _init_dict_of_key_comands(self):
@@ -113,9 +115,14 @@ class MainMenu:
         comand = ''
         try:
             comand = self.keyset[code]
-        except:
+        except KeyError:
             pass
         return comand
+
+    def _set_translated_button_names(self):
+        for i in range(self.length):
+            text = self.button_names[i]
+            self.button_names[i] = localization.current_localization.translate(text)
 
 
 def main_loop():
@@ -123,3 +130,6 @@ def main_loop():
     while not main_menu.time_to_quit:
         main_menu.print()
         main_menu.key_processing()
+
+# TODO После захода в меню настроек и смены языка, скорее всего, тут  останется старый язык. Сделать передачу сообщения
+# TODO от main_menu.key_processing с помощью return
