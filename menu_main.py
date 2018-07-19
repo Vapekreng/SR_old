@@ -22,6 +22,7 @@ class MainMenu:
     def __init__(self):
         self.time_to_quit = False
         self.code_to_comand_dict = keyset.current_keyset.get_code_to_comand_dict()
+        self.comand_to_code_dict = keyset.current_keyset.get_comands_to_code()
         self.button_names = MAIN_MENU_NAMES
         self.length = len(self.button_names)
         self._set_translated_button_names()
@@ -33,6 +34,8 @@ class MainMenu:
         self._set_comand_to_action_dict()
         self.button_to_action_dict = {}
         self._set_button_to_action_dict()
+        self.used_codes = []
+        self._set_used_codes()
 
     def _set_button_to_action_dict(self):
         self.button_to_action_dict[0] = adventure.new_game
@@ -63,6 +66,11 @@ class MainMenu:
         coord_y = SCREEN_HEIGHT - COUNT_OF_EMPTY_BOTTOM_LINES - self.length
         return coord_y
 
+    def _set_used_codes(self):
+        for comand in MAIN_MENU_USED_COMANDS:
+            code = self.comand_to_code_dict[comand]
+            self.used_codes.append(code)
+
     def print(self):
         length = self.length
         for position in range(length):
@@ -86,10 +94,8 @@ class MainMenu:
 
     def _get_code(self):
         code = terminal.read()
-        comand = self._convert_code_to_comand(code)
-        while comand not in MAIN_MENU_USED_COMANDS:
+        while code not in self.used_codes:
             code = terminal.read()
-            comand = self._convert_code_to_comand(code)
         while terminal.has_input():
             terminal.read()
         return code
@@ -110,14 +116,6 @@ class MainMenu:
     def _prev_button(self):
         new_position = (self.position - 1) % self.length
         self._set_position(new_position)
-
-    def _convert_code_to_comand(self, code):
-        comand = ''
-        try:
-            comand = self.code_to_comand_dict[code]
-        except KeyError:
-            pass
-        return comand
 
     def _set_translated_button_names(self):
         for i in range(self.length):
