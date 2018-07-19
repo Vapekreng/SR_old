@@ -1,5 +1,7 @@
 import os
 
+from bearlibterminal import terminal
+
 # comand - имя команы ('up'), key - имя клавиши, назначенной на команду ('w'), ccode - код клавиши и терминала (26)
 
 _KEYSET_PATH = 'DATA\\keyset.txt'
@@ -7,42 +9,42 @@ _SEPARATOR = '='
 
 _KEY_TO_CODE_DICT = dict()
 
-_KEY_TO_CODE_DICT['a'] = 4
-_KEY_TO_CODE_DICT['b'] = 5
-_KEY_TO_CODE_DICT['c'] = 6
-_KEY_TO_CODE_DICT['d'] = 7
-_KEY_TO_CODE_DICT['e'] = 8
-_KEY_TO_CODE_DICT['f'] = 9
-_KEY_TO_CODE_DICT['g'] = 10
-_KEY_TO_CODE_DICT['h'] = 11
-_KEY_TO_CODE_DICT['i'] = 12
-_KEY_TO_CODE_DICT['j'] = 13
-_KEY_TO_CODE_DICT['k'] = 14
-_KEY_TO_CODE_DICT['l'] = 15
-_KEY_TO_CODE_DICT['m'] = 16
-_KEY_TO_CODE_DICT['n'] = 17
-_KEY_TO_CODE_DICT['o'] = 18
-_KEY_TO_CODE_DICT['p'] = 19
-_KEY_TO_CODE_DICT['q'] = 20
-_KEY_TO_CODE_DICT['r'] = 21
-_KEY_TO_CODE_DICT['s'] = 22
-_KEY_TO_CODE_DICT['t'] = 23
-_KEY_TO_CODE_DICT['u'] = 24
-_KEY_TO_CODE_DICT['v'] = 25
-_KEY_TO_CODE_DICT['w'] = 26
-_KEY_TO_CODE_DICT['x'] = 27
-_KEY_TO_CODE_DICT['y'] = 28
-_KEY_TO_CODE_DICT['z'] = 29
-_KEY_TO_CODE_DICT['1'] = 30
-_KEY_TO_CODE_DICT['2'] = 31
-_KEY_TO_CODE_DICT['3'] = 32
-_KEY_TO_CODE_DICT['4'] = 33
-_KEY_TO_CODE_DICT['5'] = 34
-_KEY_TO_CODE_DICT['6'] = 35
-_KEY_TO_CODE_DICT['7'] = 36
-_KEY_TO_CODE_DICT['8'] = 37
-_KEY_TO_CODE_DICT['9'] = 38
-_KEY_TO_CODE_DICT['0'] = 39
+_KEY_TO_CODE_DICT['a'] = terminal.TK_A
+_KEY_TO_CODE_DICT['b'] = terminal.TK_B
+_KEY_TO_CODE_DICT['c'] = terminal.TK_C
+_KEY_TO_CODE_DICT['d'] = terminal.TK_D
+_KEY_TO_CODE_DICT['e'] = terminal.TK_E
+_KEY_TO_CODE_DICT['f'] = terminal.TK_F
+_KEY_TO_CODE_DICT['g'] = terminal.TK_G
+_KEY_TO_CODE_DICT['h'] = terminal.TK_H
+_KEY_TO_CODE_DICT['i'] = terminal.TK_I
+_KEY_TO_CODE_DICT['j'] = terminal.TK_J
+_KEY_TO_CODE_DICT['k'] = terminal.TK_K
+_KEY_TO_CODE_DICT['l'] = terminal.TK_L
+_KEY_TO_CODE_DICT['m'] = terminal.TK_M
+_KEY_TO_CODE_DICT['n'] = terminal.TK_N
+_KEY_TO_CODE_DICT['o'] = terminal.TK_O
+_KEY_TO_CODE_DICT['p'] = terminal.TK_P
+_KEY_TO_CODE_DICT['q'] = terminal.TK_Q
+_KEY_TO_CODE_DICT['r'] = terminal.TK_R
+_KEY_TO_CODE_DICT['s'] = terminal.TK_S
+_KEY_TO_CODE_DICT['t'] = terminal.TK_T
+_KEY_TO_CODE_DICT['u'] = terminal.TK_U
+_KEY_TO_CODE_DICT['v'] = terminal.TK_V
+_KEY_TO_CODE_DICT['w'] = terminal.TK_W
+_KEY_TO_CODE_DICT['x'] = terminal.TK_X
+_KEY_TO_CODE_DICT['y'] = terminal.TK_Y
+_KEY_TO_CODE_DICT['z'] = terminal.TK_Z
+_KEY_TO_CODE_DICT['1'] = terminal.TK_1
+_KEY_TO_CODE_DICT['2'] = terminal.TK_2
+_KEY_TO_CODE_DICT['3'] = terminal.TK_3
+_KEY_TO_CODE_DICT['4'] = terminal.TK_4
+_KEY_TO_CODE_DICT['5'] = terminal.TK_5
+_KEY_TO_CODE_DICT['6'] = terminal.TK_6
+_KEY_TO_CODE_DICT['7'] = terminal.TK_7
+_KEY_TO_CODE_DICT['8'] = terminal.TK_8
+_KEY_TO_CODE_DICT['9'] = terminal.TK_9
+_KEY_TO_CODE_DICT['0'] = terminal.TK_0
 
 _UNCHANGEBLE_COMAND_TO_CODE_DICT = dict()
 
@@ -71,7 +73,7 @@ _DEFAULT_COMAND_TO_CODE_DICT.update(_UNCHANGEBLE_COMAND_TO_CODE_DICT)
 _DEFAULT_COMAND_TO_CODE_DICT.update(_DEFAULT_CHANGEBLE_COMAND_TO_CODE_DICT)
 
 
-CHANGEBLE_COMAND_TO_CODE_DICT = _DEFAULT_CHANGEBLE_COMAND_TO_CODE_DICT.keys()
+CHANGEBLE_COMANDS = _DEFAULT_CHANGEBLE_COMAND_TO_CODE_DICT.keys()
 _USABLE_KEYS = _KEY_TO_CODE_DICT.keys()
 _USABLE_CODES = _KEY_TO_CODE_DICT.values()
 
@@ -126,12 +128,12 @@ class Keyset:
 
     @staticmethod
     def _comand_is_good(name):
-        return name in CHANGEBLE_COMAND_TO_CODE_DICT
+        return name in CHANGEBLE_COMANDS
 
     def _check(self):
         all_comands_are_here = True
         used_comands = self._comand_to_code_dict.keys()
-        for comand in CHANGEBLE_COMAND_TO_CODE_DICT:
+        for comand in CHANGEBLE_COMANDS:
             all_comands_are_here = all_comands_are_here and comand in used_comands
         if not all_comands_are_here:
             self._comand_to_code_dict = _DEFAULT_COMAND_TO_CODE_DICT
@@ -142,7 +144,7 @@ class Keyset:
 
     def save(self):
         f = open(_KEYSET_PATH, 'w')
-        for name in CHANGEBLE_COMAND_TO_CODE_DICT:
+        for name in CHANGEBLE_COMANDS:
             code = self._comand_to_code_dict[name]
             key = self.convert_code_to_key_func(code)
             f.write(name + _SEPARATOR + key + '\n')
