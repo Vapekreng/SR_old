@@ -22,7 +22,7 @@ class MainMenu:
     def __init__(self):
         self.time_to_quit = False
         self.code_to_comand_dict = keyset.current_keyset.get_code_to_comand_dict()
-        self.comand_to_code_dict = keyset.current_keyset.get_comands_to_code()
+        self.comand_to_code_dict = keyset.current_keyset.get_comands_to_code_dict()
         self.button_names = MAIN_MENU_NAMES
         self.length = len(self.button_names)
         self._set_translated_button_names()
