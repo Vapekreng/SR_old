@@ -24,7 +24,6 @@ _RIGHT_COLUMN_START_POSITION = [_SCREEN_WIDTH // 2 + 1, 4]
 _RIGHT_COLUMN_WIDTH = _SCREEN_WIDTH // 2
 
 
-
 class MenuControls:
 
     def __init__(self):
@@ -142,7 +141,8 @@ class MenuControls:
             self._print_button(i)
         terminal.refresh()
 
-    def print_caption(self):
+    @staticmethod
+    def print_caption():
         x0, y0 = _CAPTION_START_POSITION
         text = _CAPTION_NAME
         localized_text = localization.current_localization.translate(text)
@@ -158,6 +158,7 @@ class MenuControls:
 
     def _right_print(self, text):
         pass
+
 
 def main_loop():
     terminal.clear()
