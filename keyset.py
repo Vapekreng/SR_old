@@ -48,23 +48,23 @@ _KEY_TO_CODE_DICT['0'] = terminal.TK_0
 
 _UNCHANGEBLE_COMAND_TO_CODE_DICT = dict()
 
-_UNCHANGEBLE_COMAND_TO_CODE_DICT['esc'] = 41
-_UNCHANGEBLE_COMAND_TO_CODE_DICT['enter'] = 40
-_UNCHANGEBLE_COMAND_TO_CODE_DICT['space'] = 44
-_UNCHANGEBLE_COMAND_TO_CODE_DICT['tab'] = 43
-_UNCHANGEBLE_COMAND_TO_CODE_DICT['close'] = 224
-_UNCHANGEBLE_COMAND_TO_CODE_DICT['arrow up'] = 82
-_UNCHANGEBLE_COMAND_TO_CODE_DICT['arrow down'] = 81
-_UNCHANGEBLE_COMAND_TO_CODE_DICT['arrow left'] = 80
-_UNCHANGEBLE_COMAND_TO_CODE_DICT['arrow right'] = 79
+_UNCHANGEBLE_COMAND_TO_CODE_DICT['esc'] = terminal.TK_ESCAPE
+_UNCHANGEBLE_COMAND_TO_CODE_DICT['enter'] = terminal.TK_ENTER
+_UNCHANGEBLE_COMAND_TO_CODE_DICT['space'] = terminal.TK_SPACE
+_UNCHANGEBLE_COMAND_TO_CODE_DICT['tab'] = terminal.TK_TAB
+_UNCHANGEBLE_COMAND_TO_CODE_DICT['close'] = terminal.TK_CLOSE
+_UNCHANGEBLE_COMAND_TO_CODE_DICT['arrow up'] = terminal.TK_UP
+_UNCHANGEBLE_COMAND_TO_CODE_DICT['arrow down'] = terminal.TK_DOWN
+_UNCHANGEBLE_COMAND_TO_CODE_DICT['arrow left'] = terminal.TK_LEFT
+_UNCHANGEBLE_COMAND_TO_CODE_DICT['arrow right'] = terminal.TK_RIGHT
 
 
 _DEFAULT_CHANGEBLE_COMAND_TO_CODE_DICT = dict()
 
-_DEFAULT_CHANGEBLE_COMAND_TO_CODE_DICT['left'] = 4
-_DEFAULT_CHANGEBLE_COMAND_TO_CODE_DICT['right'] = 7
-_DEFAULT_CHANGEBLE_COMAND_TO_CODE_DICT['up'] = 26
-_DEFAULT_CHANGEBLE_COMAND_TO_CODE_DICT['down'] = 22
+_DEFAULT_CHANGEBLE_COMAND_TO_CODE_DICT['left'] = terminal.TK_A
+_DEFAULT_CHANGEBLE_COMAND_TO_CODE_DICT['right'] = terminal.TK_D
+_DEFAULT_CHANGEBLE_COMAND_TO_CODE_DICT['up'] = terminal.TK_W
+_DEFAULT_CHANGEBLE_COMAND_TO_CODE_DICT['down'] = terminal.TK_S
 
 
 _DEFAULT_COMAND_TO_CODE_DICT = dict()
@@ -152,12 +152,12 @@ class Keyset:
 
     @staticmethod
     def convert_code_to_key_func(code):
-        key = ''
+        new_key = ''
         for key in _KEY_TO_CODE_DICT.keys():
             if _KEY_TO_CODE_DICT[key] == code:
-                key = key
+                new_key = key
                 break
-        return key
+        return new_key
 
     def _set_code_to_comand_dict(self):
         self._code_to_comand_dict = {}
