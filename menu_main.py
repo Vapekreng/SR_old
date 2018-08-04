@@ -131,11 +131,9 @@ class MainMenu:
         self._set_translated_button_names()
         self._set_used_codes()
 
+
 def main_loop():
     main_menu = MainMenu()
     while not main_menu.time_to_quit:
         main_menu.print()
         main_menu.key_processing()
-
-# TODO После захода в меню настроек и смены языка, скорее всего, тут  останется старый язык. Сделать передачу сообщения
-# TODO от main_menu.key_processing с помощью return
