@@ -9,20 +9,16 @@ _CHANGEBLE_COMANDS = keyset.CHANGEBLE_COMANDS
 _INVITE_TO_PRINT = '<<< ??? >>>'
 _SCREEN_WIDTH = config.SCREEN_WIDTH
 _SCREEN_HEIGHT = config.SCREEN_HEIGHT
-_COUNT_OF_SPACES = 2
-_BG_COLOR_LIGHTED = 'dark grey'
-_BG_COLOR_NORMAL = 'black'
 _TERMINAL_COLOR_NORMAL = 'white'
 _TERMINAL_COLOR_LIGHTED = 'yellow'
 _CAPTION_START_POSITION = [0, 1]
 _CAPTION_BORDER_POSITION = [0, 2]
-_CAPTION_NAME = '***Control settings***'
+_CAPTION_NAME = 'Control settings'
 _BORDER_SYMBOL = '-'
 _LEFT_COLUMN_START_POSITION = [10, 4]
 _LEFT_COLUMN_WIDTH = (_SCREEN_WIDTH // 2) - _LEFT_COLUMN_START_POSITION[0]
 _RIGHT_COLUMN_START_POSITION = [_SCREEN_WIDTH // 2 + 1, 4]
 _RIGHT_COLUMN_WIDTH = _SCREEN_WIDTH // 2
-
 
 
 class MenuControls:
@@ -142,7 +138,8 @@ class MenuControls:
             self._print_button(i)
         terminal.refresh()
 
-    def print_caption(self):
+    @staticmethod
+    def print_caption():
         x0, y0 = _CAPTION_START_POSITION
         text = _CAPTION_NAME
         localized_text = localization.current_localization.translate(text)
@@ -158,6 +155,7 @@ class MenuControls:
 
     def _right_print(self, text):
         pass
+
 
 def main_loop():
     terminal.clear()
