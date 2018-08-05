@@ -1,0 +1,14 @@
+New game = Новая игра
+Load game = Продолжить
+Settings = Настройки
+Exit = Выход
+Settings = Настройки
+Controls = Управление
+Control settings = Настройки управления
+Game settings = Игровые настройки
+language = язык
+font size = размер шрифта
+left = налево
+right = направо
+up = вверх
+down = вниз
