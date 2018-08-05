@@ -15,6 +15,8 @@ COUNT_OF_SPACES = 2
 COUNT_OF_EMPTY_BOTTOM_LINES = 5
 BG_COLOR_LIGHTED = 'dark grey'
 BG_COLOR_NORMAL = 'black'
+TERMINAL_COLOR_NORMAL = 'white'
+TERMINAL_COLOR_LIGHTED = 'yellow'
 
 
 class MainMenu:
@@ -23,8 +25,9 @@ class MainMenu:
         self.time_to_quit = False
         self.code_to_comand_dict = keyset.current_keyset.get_code_to_comand_dict()
         self.comand_to_code_dict = keyset.current_keyset.get_comands_to_code_dict()
-        self.button_names = MAIN_MENU_NAMES
-        self.length = len(self.button_names)
+        self.button_names = []
+        self.length = len(MAIN_MENU_NAMES)
+        self._set_translated_button_names()
         self._set_translated_button_names()
         self.position = 0
         self.width = self._init_menu_width()
@@ -67,6 +70,7 @@ class MainMenu:
         return coord_y
 
     def _set_used_codes(self):
+        self.used_codes = []
         for comand in MAIN_MENU_USED_COMANDS:
             code = self.comand_to_code_dict[comand]
             self.used_codes.append(code)
@@ -78,19 +82,19 @@ class MainMenu:
         terminal.refresh()
 
     def _print_button(self, position):
-        init_text = self.button_names[position]
-        normilized_text = init_text.center(self.width)
+        text = self.button_names[position]
         x = self.init_coord_x
         y = self.init_coord_y + position
         if self.position == position:
-            terminal.bkcolor(BG_COLOR_LIGHTED)
-        terminal.printf(x, y, normilized_text)
-        terminal.bkcolor(BG_COLOR_NORMAL)
+            terminal.color(TERMINAL_COLOR_LIGHTED)
+        terminal.printf(x, y, text)
+        terminal.color(TERMINAL_COLOR_NORMAL)
 
     def key_processing(self):
         code = self._get_code()
         comand = self.code_to_comand_dict[code]
         self.comand_to_action_dict[comand]()
+        self._refresh_settings()
 
     def _get_code(self):
         code = terminal.read()
@@ -118,9 +122,17 @@ class MainMenu:
         self._set_position(new_position)
 
     def _set_translated_button_names(self):
+        self.button_names = []
         for i in range(self.length):
-            text = self.button_names[i]
-            self.button_names[i] = localization.current_localization.translate(text)
+            text = MAIN_MENU_NAMES[i]
+            localized_text = localization.current_localization.translate(text)
+            self.button_names.append(localized_text)
+
+    def _refresh_settings(self):
+        self.code_to_comand_dict = keyset.current_keyset.get_code_to_comand_dict()
+        self.comand_to_code_dict = keyset.current_keyset.get_comands_to_code_dict()
+        self._set_translated_button_names()
+        self._set_used_codes()
 
 
 def main_loop():
@@ -128,6 +140,3 @@ def main_loop():
     while not main_menu.time_to_quit:
         main_menu.print()
         main_menu.key_processing()
-
-# TODO После захода в меню настроек и смены языка, скорее всего, тут  останется старый язык. Сделать передачу сообщения
-# TODO от main_menu.key_processing с помощью return
