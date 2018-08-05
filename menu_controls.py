@@ -16,7 +16,6 @@ _CAPTION_BORDER_POSITION = [0, 2]
 _CAPTION_NAME = 'Control settings'
 _BORDER_SYMBOL = '-'
 _LEFT_COLUMN_START_POSITION = [10, 4]
-_LEFT_COLUMN_WIDTH = (_SCREEN_WIDTH // 2) - _LEFT_COLUMN_START_POSITION[0]
 _RIGHT_COLUMN_START_POSITION = [_SCREEN_WIDTH // 2 + 1, 4]
 _RIGHT_COLUMN_WIDTH = _SCREEN_WIDTH // 2
 
@@ -149,12 +148,6 @@ class MenuControls:
         border = _BORDER_SYMBOL * _SCREEN_WIDTH
         terminal.printf(x0, y0, border)
         terminal.refresh()
-
-    def _left_print(self, text):
-        pass
-
-    def _right_print(self, text):
-        pass
 
 
 def main_loop():
