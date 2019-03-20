@@ -1,79 +1,63 @@
 from bearlibterminal import terminal
 
-import localization
-import keyset
+import localization as lk
+from keyset import keyset
+from settings import settings
 import adventure
 import menu_controls
 import config
 import menu_settings
 
-MAIN_MENU_NAMES = ['New game', 'Load game', 'Controls', 'Settings', 'Exit']
-MAIN_MENU_USED_COMANDS = ['up', 'down', 'arrow up', 'arrow down', 'enter', 'esc', 'close']
 SCREEN_WIDTH = config.SCREEN_WIDTH
 SCREEN_HEIGHT = config.SCREEN_HEIGHT
-COUNT_OF_SPACES = 2
-COUNT_OF_EMPTY_BOTTOM_LINES = 5
-BG_COLOR_LIGHTED = 'dark grey'
-BG_COLOR_NORMAL = 'black'
-TERMINAL_COLOR_NORMAL = 'white'
-TERMINAL_COLOR_LIGHTED = 'yellow'
+MAIN_MENU_LEFT_UPPER_CONER = [35, 15]
+NORMAL_TEXT_COLOR = 'white'
+LIGHTED_TEXT_COLOR = 'dark yellow'
+
+
+class Buttons:
+
+    def __init__(self, names, press_button):
+        self.names = names
+        self.press_button = press_button
+
+    def get_name(self):
+        language = settings.language
+        name = self.names[language]
+        return name
+
+    def press(self):
+        self.press_button()
 
 
 class MainMenu:
 
     def __init__(self):
         self.time_to_quit = False
-        self.code_to_comand_dict = keyset.current_keyset.get_code_to_comand_dict()
-        self.comand_to_code_dict = keyset.current_keyset.get_comands_to_code_dict()
-        self.button_names = []
-        self.length = len(MAIN_MENU_NAMES)
-        self._set_translated_button_names()
-        self._set_translated_button_names()
+        self.buttons = self.get_buttons()
+        self.navigation_codes = self.get_navigation_codes()
+        self.navigation_actions = [self._prev_button, self._next_button, self._press_button, self._set_quit,
+                                   self._set_quit, self._prev_button, self._next_button]
+        self.length = len(self.buttons)
         self.position = 0
-        self.width = self._init_menu_width()
-        self.init_coord_x = self._init_init_coord_x()
-        self.init_coord_y = self._get_init_coord_y()
-        self.comand_to_action_dict = {}
-        self._set_comand_to_action_dict()
-        self.button_to_action_dict = {}
-        self._set_button_to_action_dict()
-        self.used_codes = []
-        self._set_used_codes()
 
-    def _set_button_to_action_dict(self):
-        self.button_to_action_dict[0] = adventure.new_game
-        self.button_to_action_dict[1] = adventure.load_game
-        self.button_to_action_dict[2] = menu_controls.main_loop
-        self.button_to_action_dict[3] = menu_settings.main_loop
-        self.button_to_action_dict[4] = self._set_quit
+    def get_buttons(self):
+        buttons = []
+        buttons.append(Buttons(lk.NEW_GAME, adventure.new_game))
+        buttons.append(Buttons(lk.LOAD_GAME, adventure.load_game))
+        buttons.append(Buttons(lk.CONTROLS, menu_controls.main_loop))
+        buttons.append(Buttons(lk.SETTINGS, menu_settings.main_loop))
+        buttons.append(Buttons(lk.EXIT, self._set_quit))
+        return buttons
 
-    def _set_comand_to_action_dict(self):
-        self.comand_to_action_dict['up'] = self._prev_button
-        self.comand_to_action_dict['arrow up'] = self._prev_button
-        self.comand_to_action_dict['down'] = self._next_button
-        self.comand_to_action_dict['arrow down'] = self._next_button
-        self.comand_to_action_dict['enter'] = self._press_button
-        self.comand_to_action_dict['esc'] = self._set_quit
-        self.comand_to_action_dict['close'] = self._set_quit
+    def get_navigation_codes(self):
+        codes = [keyset.codes['up'], keyset.codes['down'], terminal.TK_ENTER, terminal.TK_ESCAPE, terminal.TK_CLOSE,
+                 terminal.TK_UP, terminal.TK_DOWN]
+        return codes
 
-    def _init_menu_width(self):
-        max_len = len(max(self.button_names))
-        max_len = max_len + max_len % 2 + COUNT_OF_SPACES * 2
-        return max_len
-
-    def _init_init_coord_x(self):
-        coord_x = (SCREEN_WIDTH - self.width) // 2
-        return coord_x
-
-    def _get_init_coord_y(self):
-        coord_y = SCREEN_HEIGHT - COUNT_OF_EMPTY_BOTTOM_LINES - self.length
-        return coord_y
-
-    def _set_used_codes(self):
-        self.used_codes = []
-        for comand in MAIN_MENU_USED_COMANDS:
-            code = self.comand_to_code_dict[comand]
-            self.used_codes.append(code)
+    def refresh(self):
+        self.buttons = self.get_buttons()
+        self.navigation_codes = self.get_navigation_codes()
 
     def print(self):
         length = self.length
@@ -81,58 +65,37 @@ class MainMenu:
             self._print_button(position)
         terminal.refresh()
 
-    def _print_button(self, position):
-        text = self.button_names[position]
-        x = self.init_coord_x
-        y = self.init_coord_y + position
-        if self.position == position:
-            terminal.color(TERMINAL_COLOR_LIGHTED)
-        terminal.printf(x, y, text)
-        terminal.color(TERMINAL_COLOR_NORMAL)
-
     def key_processing(self):
-        code = self._get_code()
-        comand = self.code_to_comand_dict[code]
-        self.comand_to_action_dict[comand]()
-        self._refresh_settings()
-
-    def _get_code(self):
         code = terminal.read()
-        while code not in self.used_codes:
-            code = terminal.read()
-        while terminal.has_input():
-            terminal.read()
-        return code
+        if code in self.navigation_codes:
+            index = self.navigation_codes.index(code)
+            self.navigation_actions[index]()
 
-    def _set_position(self, new_position):
-        self.position = new_position
+    def _print_button(self, position):
+        current_button = self.buttons[position]
+        text = current_button.get_name()
+        x = MAIN_MENU_LEFT_UPPER_CONER[0]
+        y = MAIN_MENU_LEFT_UPPER_CONER[1] + position
+        if self.position == position:
+            terminal.color(LIGHTED_TEXT_COLOR)
+        terminal.printf(x, y, text)
+        terminal.color(NORMAL_TEXT_COLOR)
 
     def _set_quit(self):
         self.time_to_quit = True
 
     def _press_button(self):
-        self.button_to_action_dict[self.position]()
+        position = self.position
+        current_button = self.buttons[position]
+        current_button.press()
 
     def _next_button(self):
         new_position = (self.position + 1) % self.length
-        self._set_position(new_position)
+        self.position = new_position
 
     def _prev_button(self):
         new_position = (self.position - 1) % self.length
-        self._set_position(new_position)
-
-    def _set_translated_button_names(self):
-        self.button_names = []
-        for i in range(self.length):
-            text = MAIN_MENU_NAMES[i]
-            localized_text = localization.current_localization.translate(text)
-            self.button_names.append(localized_text)
-
-    def _refresh_settings(self):
-        self.code_to_comand_dict = keyset.current_keyset.get_code_to_comand_dict()
-        self.comand_to_code_dict = keyset.current_keyset.get_comands_to_code_dict()
-        self._set_translated_button_names()
-        self._set_used_codes()
+        self.position = new_position
 
 
 def main_loop():
@@ -140,3 +103,5 @@ def main_loop():
     while not main_menu.time_to_quit:
         main_menu.print()
         main_menu.key_processing()
+        main_menu.refresh()
+
